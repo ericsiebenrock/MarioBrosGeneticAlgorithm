@@ -29,6 +29,7 @@ local POPULATION_SIZE = 4
 local INPUT_SEQ_LENGTH = 1000
 local geneIndex=1;
 local inputCount=1;
+local winning_cand;
 
 generateInitialPopulation(POPULATION_SIZE, INPUT_SEQ_LENGTH)
 local candidates = getPopulation()
@@ -87,6 +88,7 @@ while true do ------------------------------------------------------------------
                 -- mario is on the flagpole = he won
                 -- TODO: register that the current chromosome lead to a winning solution
                 candidates[chromIndex].hasWon=true;
+                winning_cand=candidates[chromIndex];
                 break
             end
 
