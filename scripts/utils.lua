@@ -33,4 +33,16 @@ function os.sleep(msec)
   repeat until os.clock() >= now
 end
 
+--[[function that saves in a file the winning chromosome's input sequence
+the file is opened in append mode (a) so all the winning chromosomes will be saved
+--]]
+function saveWinInputs(candidate)
+    print("saving winning candidate into \"winning_candidates.txt\"");
+    file = io.open("winning_candidates.txt", "a");
+    for j=1, tablelength(candidate.inputSeq) do
+        file:write(candidate.inputSeq[j], "\n");
+    end
+    file:close();
+end
+
 -- note: those functions cannot be local otherwise they couldn't be invoked in the main script

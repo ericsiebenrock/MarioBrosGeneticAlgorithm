@@ -34,6 +34,7 @@ local winning_cand;
 generateInitialPopulation(POPULATION_SIZE, INPUT_SEQ_LENGTH)
 local candidates = getPopulation()
 
+saveWinInputs(candidates[1])
 -- main loop that iterates over the chromosomes of the population and tests each o them
 while true do -------------------------------------------------------------------------------------
     -- ci saranno altri due loop interni: uno che cicla sulla popolazione (su tutti i cromosomi)
@@ -85,11 +86,12 @@ while true do ------------------------------------------------------------------
             local floatingState = memoryRead(PLAYER_FLOAT_STATE);
             -- checks if mario is floating because he's on the flagpole
             if floatingState == PLAYER_FLAGPOLE then
+                print("chromsome "..chromIndex.." lead to a winning solution, s")
                 -- mario is on the flagpole = he won
-                -- TODO: register that the current chromosome lead to a winning solution
+                -- register that the current chromosome lead to a winning solution
                 candidates[chromIndex].hasWon=true;
                 winning_cand=candidates[chromIndex];
-                break
+                saveWinInputs(winning_cand);
             end
 
             inputCount=inputCount+1;
@@ -112,8 +114,6 @@ while true do ------------------------------------------------------------------
     print("popoulation finished")
 
     --fine dei due loop interni
-    --TODO:check if there are winning chromosomes (in that case break to store the chromosome somewhere: TERMINATION CONDITION)
-
     --chromosomes sorting in dec orderd from the fittest to the less fit (fitnessSort defined in utils.lua)
     table.sort(candidates,function(a,b) return a.fitness > b.fitness end);
 
@@ -122,14 +122,3 @@ while true do ------------------------------------------------------------------
     geneticCrossover(); -- also calls mutation
 
 end --end of the main loop: winning(s) chromosome search
-
-
---[[function that saves in a file the winning chromosome's input sequence
---]]
-function saveWinInputs()
-    file = io.open("winning_data"..i..".txt", "w");
-    for j=1, tablelength(winning_cand.inputs) do
-        file:write(TODO, "\n");
-    end
-    file:close();
-end
