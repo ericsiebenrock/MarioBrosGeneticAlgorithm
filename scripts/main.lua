@@ -29,12 +29,11 @@ local POPULATION_SIZE = 4
 local INPUT_SEQ_LENGTH = 1000
 local geneIndex=1;
 local inputCount=1;
-local winning_cand;
+local solutionFound=-1;
 
 generateInitialPopulation(POPULATION_SIZE, INPUT_SEQ_LENGTH)
 local candidates = getPopulation()
 
-saveWinInputs(candidates[1])
 -- main loop that iterates over the chromosomes of the population and tests each o them
 while true do -------------------------------------------------------------------------------------
     -- ci saranno altri due loop interni: uno che cicla sulla popolazione (su tutti i cromosomi)
@@ -90,8 +89,9 @@ while true do ------------------------------------------------------------------
                 -- mario is on the flagpole = he won
                 -- register that the current chromosome lead to a winning solution
                 candidates[chromIndex].hasWon=true;
-                winning_cand=candidates[chromIndex];
-                saveWinInputs(winning_cand);
+                saveWinInputs(candidates[chromIndex]);
+                solutionFound=chromIndex;
+                break;
             end
 
             inputCount=inputCount+1;
@@ -109,10 +109,16 @@ while true do ------------------------------------------------------------------
             --]]
             emu.frameadvance()
         end -- end of the loop over the single chromosome
+        if solutionFound >= 0 then
+            break;
+        end
         --print("Chromosome "..chromIndex.." finished, next chromsome")
     end -- end of the loop over the population
     print("popoulation finished")
 
+    if solutionFound >= 0 then
+        break;
+    end
     --fine dei due loop interni
     --chromosomes sorting in dec orderd from the fittest to the less fit (fitnessSort defined in utils.lua)
     table.sort(candidates,function(a,b) return a.fitness > b.fitness end);
