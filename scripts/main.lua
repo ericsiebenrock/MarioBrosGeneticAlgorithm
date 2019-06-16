@@ -34,6 +34,12 @@ local solutionFound=-1;
 generateInitialPopulation(POPULATION_SIZE, INPUT_SEQ_LENGTH)
 local candidates = getPopulation()
 
+-- reading tests
+print(candidates[1]);
+saveWinInputs(candidates[1]);
+tableRead = readWinInputs();
+print(tableRead);
+
 -- main loop that iterates over the chromosomes of the population and tests each o them
 while true do -------------------------------------------------------------------------------------
     -- ci saranno altri due loop interni: uno che cicla sulla popolazione (su tutti i cromosomi)

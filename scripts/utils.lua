@@ -102,7 +102,7 @@ end
 function readWinInputs()
     if not file_exists("winning_candidates.txt") then return {} end
     lines = {}
-    for line in io.lines(file) do
+    for line in io.lines("winning_candidates.txt") do
         lines[#lines + 1] = line
     end
     return lines
