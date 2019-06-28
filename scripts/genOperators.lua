@@ -35,15 +35,18 @@ function geneticCrossover()
     local cutPoint = math.random(chromosomesMid-(chLength/4) , chromosomesMid+(chLength/4));
     local chromosome1=selectedCandidates[1];
     local chromosome2=selectedCandidates[2];
-    print("performing genetic chrossover with cut point around the chromsome center: ("..chromosomesMid.."). Cut point = "..cutPoint)
+    print("performing genetic chrossover with cut point around the chromsome center ("..chromosomesMid.."): Cut point = "..cutPoint)
+    print("first half from 1 to"..cutPoint.."; second half from "..(cutPoint+1).." to "..chLength.."")
     -- for ha semantica <=
     for i=1, cutPoint do
+        --chromsome1 keeps the first part while chromosome2 changes it with the one of chromosome1
         chromosome1.inputSeq[i]=selectedCandidates[1].inputSeq[i];
-        chromosome2.inputSeq[i]=selectedCandidates[2].inputSeq[i];
+        chromosome2.inputSeq[i]=selectedCandidates[1].inputSeq[i];
     end
     for j=(cutPoint+1), chLength do
+        --chromsome2 keeps the second part while chromosome1 changes it with the one of chromosome2
         chromosome1.inputSeq[j]=selectedCandidates[2].inputSeq[j];
-        chromosome2.inputSeq[j]=selectedCandidates[1].inputSeq[j];
+        chromosome2.inputSeq[j]=selectedCandidates[2].inputSeq[j];
     end
 
     geneticMutation(0.5, chromosome1, 0)

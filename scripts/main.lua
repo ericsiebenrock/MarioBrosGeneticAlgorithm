@@ -17,6 +17,7 @@ local PLAYER_FLAGPOLE       = 0x03   --Player is sliding down flagpole.
 local GAME_TIMER_ONES       = 0x07fA --Game Timer first digit
 local GAME_TIMER_TENS       = 0x07f9 --Game Timer second digit
 local GAME_TIMER_HUNDREDS   = 0x07f8 --Game Time third digit
+local MARIO_COINS = 0x075E
 local GAME_TIMER_MAX        = 400    --Max time assigned by game
 local CONTROL_FRAME_NUMBER = 10
 local LIVES_LEFT = 0x075A            -- the number of mario's lives left
@@ -64,14 +65,13 @@ while true do ------------------------------------------------------------------
             (memoryRead(GAME_TIMER_TENS) * 10)      +
             memoryRead(GAME_TIMER_ONES);
 
-            fitness = playerXDistance; -- at the moment the fitness depends only on the x distance covered by mario
-            candidates[chromIndex].fitness=fitness
+            fitness = playerXDistance + gameTime; -- at the moment the fitness depends only on the x distance covered by mario and the time left
+            candidates[chromIndex].fitness = fitness
 
             --sets the random input map for the player 1
             joypad.set(1,candidates[chromIndex].inputSeq[geneIndex]);
 
             writeOnDisplay(1, "Fitness: "..fitness); -- NB: .. is the concat operator
-
 
             writeOnDisplay(2, "Chromsome n.: "..chromIndex);
 
