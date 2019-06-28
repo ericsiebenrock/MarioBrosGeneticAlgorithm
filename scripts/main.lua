@@ -21,7 +21,8 @@ local GAME_TIMER_MAX        = 400    --Max time assigned by game
 local CONTROL_FRAME_NUMBER = 10
 local LIVES_LEFT = 0x075A            -- the number of mario's lives left
 
--- TODO: 1) FINIRE LA FUNZIONE DI SALVATAGGIO IN UN FILE DEL CANDIDATO MIGLIORE PER NON PERDERE I PROGRESSI
+-- TODO:
+-- 1) FINIRE LA FUNZIONE DI SALVATAGGIO IN UN FILE DEL CANDIDATO MIGLIORE PER NON PERDERE I PROGRESSI (OK)
 -- 2) TESTARE SE EFFETTIVAMENTE C'è UN MIGLIORAMENTO DOPO UN PO DI TEMPO
 -- 3) INIZIARE LA FASE 2 IN CUI SI AGGIUNGE INTERAZIONE CON AMBIENTE DEL GIOCO
 
@@ -35,10 +36,14 @@ generateInitialPopulation(POPULATION_SIZE, INPUT_SEQ_LENGTH)
 local candidates = getPopulation()
 
 -- reading tests
-print(candidates[1]);
-saveWinInputs(candidates[1]);
-tableRead = readWinInputs();
-print(tableRead);
+--print(candidates[1]);
+--saveWinInputs(candidates[1]);
+--tableRead = readWinInputs();
+--print(tableRead);
+if file_exists("winning_candidates.txt") then
+    print("reading first candidate frome save file...")
+    candidates[1].inputSeq = readWinInputs()
+end
 
 -- main loop that iterates over the chromosomes of the population and tests each o them
 while true do -------------------------------------------------------------------------------------
@@ -122,11 +127,12 @@ while true do ------------------------------------------------------------------
     end -- end of the loop over the population
     print("popoulation finished")
 
-    if solutionFound >= 0 then
+    if solutionFound > 0 then
         break;
     end
     --fine dei due loop interni
     --chromosomes sorting in dec orderd from the fittest to the less fit (fitnessSort defined in utils.lua)
+    print("performing genetic operations..")
     table.sort(candidates,function(a,b) return a.fitness > b.fitness end);
 
     -- perform selection, crossover and mutation operations (genetic operators)
