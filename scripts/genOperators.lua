@@ -31,15 +31,17 @@ it is used to try to perform the "cut" around the middle of the chromosome
 --]]
 function geneticCrossover()
     local chLength = chromsomeLength();
-    local chromosomesMid =chLength/2;
+    local chromosomesMid = chLength/2;
     local cutPoint = math.random(chromosomesMid-(chLength/4) , chromosomesMid+(chLength/4));
     local chromosome1=selectedCandidates[1];
     local chromosome2=selectedCandidates[2];
+    print("performing genetic chrossover with cut point around the chromsome center: ("..chromosomesMid.."). Cut point = "..cutPoint)
+    -- for ha semantica <=
     for i=1, cutPoint do
         chromosome1.inputSeq[i]=selectedCandidates[1].inputSeq[i];
         chromosome2.inputSeq[i]=selectedCandidates[2].inputSeq[i];
     end
-    for j=cutPoint, chLength do
+    for j=(cutPoint+1), chLength do
         chromosome1.inputSeq[j]=selectedCandidates[2].inputSeq[j];
         chromosome2.inputSeq[j]=selectedCandidates[1].inputSeq[j];
     end
@@ -61,7 +63,7 @@ function geneticMutation(changeProbability, newChromsome, indexToInsert)
         end
     end
     population=getPopulation()
-    --the new chromosomes replace the last chromsome of the population (the less fitt since the population is sorted vy fitness)
+    --the new chromosomes replace the 2 last chromsomes of the population (the less fitt since the population is sorted by fitness)
     population[getPopulationSize()-indexToInsert]=newChromsome;
 end
 
