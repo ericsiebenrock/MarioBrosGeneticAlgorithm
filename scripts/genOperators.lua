@@ -32,10 +32,12 @@ it is used to try to perform the "cut" around the middle of the chromosome
 function geneticCrossover()
     local chLength = chromsomeLength();
     local chromosomesMid = chLength/2;
-    local cutPoint = math.random(chromosomesMid-(chLength/4) , chromosomesMid+(chLength/4));
+    -- cutPoint in always between the half and before cause 500 is around the actual chromsome middle
+    -- but the chromosome length was put to 1500 just to be sure
+    local cutPoint = math.random(chromosomesMid-(chLength/4) , chromosomesMid);
     local chromosome1=selectedCandidates[1];
     local chromosome2=selectedCandidates[2];
-    print("performing genetic chrossover with cut point around the chromsome center ("..chromosomesMid.."): Cut point = "..cutPoint)
+    print("performing genetic crossover with cut point around the chromsome center ("..chromosomesMid.."): Cut point = "..cutPoint)
     print("first half from 1 to"..cutPoint.."; second half from "..(cutPoint+1).." to "..chLength.."")
     -- for ha semantica <=
     for i=1, cutPoint do

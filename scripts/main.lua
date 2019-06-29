@@ -28,7 +28,7 @@ local LIVES_LEFT = 0x075A            -- the number of mario's lives left
 -- 3) INIZIARE LA FASE 2 IN CUI SI AGGIUNGE INTERAZIONE CON AMBIENTE DEL GIOCO
 
 local POPULATION_SIZE = 4
-local INPUT_SEQ_LENGTH = 1000
+local INPUT_SEQ_LENGTH = 1500
 local geneIndex=1;
 local inputCount=1;
 local solutionFound=-1;
@@ -61,11 +61,11 @@ while true do ------------------------------------------------------------------
             -- the player current position on the x axis (space traveled by mario)
             playerXDistance = memoryRead(PLAYER_XPAGE_ADDR) * PLAYER_PAGE_WIDTH +
             memoryRead(PLAYER_XPOS_ADDR);
-            gameTime = (memoryRead(GAME_TIMER_HUNDREDS) * 100) +
-            (memoryRead(GAME_TIMER_TENS) * 10)      +
+            gameTimeHundreds = memoryRead(GAME_TIMER_HUNDREDS) * 100
+            gameTime = (gameTimeHundreds) + (memoryRead(GAME_TIMER_TENS) * 10) +
             memoryRead(GAME_TIMER_ONES);
 
-            fitness = playerXDistance + gameTime; -- at the moment the fitness depends only on the x distance covered by mario and the time left
+            fitness = playerXDistance + gameTimeHundreds; -- at the moment the fitness depends only on the x distance covered by mario and the time left
             candidates[chromIndex].fitness = fitness
 
             --sets the random input map for the player 1
@@ -80,7 +80,7 @@ while true do ------------------------------------------------------------------
             local fallingState = memoryRead(PLAYER_VIEWPORT_ADDR);
             if p_state == PLAYER_DYING_STATE or fallingState >= PLAYER_DOWN_HOLE or gameTime==0 then
                 -- MARIO DIED or there is no time left
-                print("Mario has died! :(");
+                print("Mario has died! (final fitness: "..fitness..")");
                 candidates[chromIndex].fitness=fitness
                 while gameTime <= GAME_TIMER_MAX-5 do
                     gameTime = (memoryRead(GAME_TIMER_HUNDREDS) * 100)+(memoryRead(GAME_TIMER_TENS) * 10)+memoryRead(GAME_TIMER_ONES);
