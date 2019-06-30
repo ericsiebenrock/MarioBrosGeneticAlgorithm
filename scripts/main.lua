@@ -22,6 +22,9 @@ local GAME_TIMER_MAX        = 400    --Max time assigned by game
 local CONTROL_FRAME_NUMBER = 10
 local LIVES_LEFT = 0x075A            -- the number of mario's lives left
 
+local ENEMY_DRAWN = 0x000F -- enemy drawn
+local POWERUP_DRAWN = 0x0014 -- powerup drawn
+
 -- TODO:
 -- 1) FINIRE LA FUNZIONE DI SALVATAGGIO IN UN FILE DEL CANDIDATO MIGLIORE PER NON PERDERE I PROGRESSI (OK)
 -- 2) TESTARE SE EFFETTIVAMENTE C'è UN MIGLIORAMENTO DOPO UN PO DI TEMPO
@@ -32,6 +35,8 @@ local INPUT_SEQ_LENGTH = 1500
 local geneIndex=1;
 local inputCount=1;
 local solutionFound=-1;
+local jumpCmd=false;
+local continuousJumpFrames=0;
 
 generateInitialPopulation(POPULATION_SIZE, INPUT_SEQ_LENGTH)
 local candidates = getPopulation()
@@ -68,12 +73,37 @@ while true do ------------------------------------------------------------------
             fitness = playerXDistance + gameTimeHundreds; -- at the moment the fitness depends only on the x distance covered by mario and the time left
             candidates[chromIndex].fitness = fitness
 
+            enemy = memoryRead(ENEMY_DRAWN); -- 1 if an enemy is on screen, 0 otherwise
+            powerup = memoryRead(POWERUP_DRAWN);
+
+            if enemy==1 then
+                -- if an enemy is on screen mario keeps jumping
+                -- to best jumping technique is having 2 frames with jump on true and 1 frame with jump on false
+                if jumpCmd==true then
+                    -- if jump command is true change it after 2 frames
+                    if continuousJumpFrames>=2 then
+                        continuousJumpFrames=0;
+                        jumpCmd = not jumpCmd;
+                    end
+                else
+                    -- if jump command is false change it after 1 frame
+                    if continuousJumpFrames>=1 then
+                        continuousJumpFrames=0;
+                        jumpCmd = not jumpCmd;
+                    end
+                end
+                candidates[chromIndex].inputSeq[geneIndex].A=jumpCmd;
+            elseif powerup==1 then
+                candidates[chromIndex].inputSeq[geneIndex].A=false;
+            end
+
             --sets the random input map for the player 1
             joypad.set(1,candidates[chromIndex].inputSeq[geneIndex]);
 
             writeOnDisplay(1, "Fitness: "..fitness); -- NB: .. is the concat operator
 
             writeOnDisplay(2, "Chromsome n.: "..chromIndex);
+            writeOnDisplay(3, "enemy : "..enemy);
 
             -- reading from memory mario's state (dead or alive)
             local playerState = memoryRead(PLAYER_STATE_ADDR);
@@ -107,8 +137,10 @@ while true do ------------------------------------------------------------------
 
             inputCount=inputCount+1;
             if inputCount==CONTROL_FRAME_NUMBER then
+                continuousJumpFrames=continuousJumpFrames+1;
                 inputCount=0;
                 geneIndex=geneIndex+1;
+                --print("---------------------------------------------------------------------------")
             end
 
             --current binary input data
@@ -131,9 +163,15 @@ while true do ------------------------------------------------------------------
         break;
     end
     --fine dei due loop interni
+
     --chromosomes sorting in dec orderd from the fittest to the less fit (fitnessSort defined in utils.lua)
     print("performing genetic operations..")
     table.sort(candidates,function(a,b) return a.fitness > b.fitness end);
+    for k=1, POPULATION_SIZE do
+        print("candidate fitness "..k..": "..candidates[k].fitness)
+    end
+    print("saving best population candidate into file..")
+    saveWinInputs(candidates[1]);
 
     -- perform selection, crossover and mutation operations (genetic operators)
     geneticSelection(candidates, 2);

@@ -68,12 +68,12 @@ The input must be encoded in a map with keys "up", "down" and so on. right and l
 function generateRandomInput()
     local lrv = randomBoolean();
     return {
-        up      = randomBoolean(),
-        down    = randomBoolean(),
+        up      = false,
+        down    = false,
         left    = lrv,
         right   = not lrv,
-        A       = randomBoolean(),
-        B       = randomBoolean(),
+        A       = randomBoolean(), -- jump
+        B       = randomBoolean(), -- sprint
         start   = false,
         select  = false
     };
