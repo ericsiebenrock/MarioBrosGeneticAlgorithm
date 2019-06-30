@@ -41,15 +41,19 @@ local continuousJumpFrames=0;
 generateInitialPopulation(POPULATION_SIZE, INPUT_SEQ_LENGTH)
 local candidates = getPopulation()
 
--- reading tests
---print(candidates[1]);
---saveWinInputs(candidates[1]);
---tableRead = readWinInputs();
---print(tableRead);
 if file_exists("winning_candidates.txt") then
     print("reading first candidate frome save file...")
     candidates[1].inputSeq = readWinInputs()
 end
+
+-- table copy tests
+print("[copy test] candidates[1].fitness="..candidates[1].fitness)
+print("[copy test] candidates[1].inputSeq[1].A="..candidates[1].inputSeq[1].A)
+chCopy = chromsome.copy(chr)
+chCopy.fitness = 7
+chCopy.inputSeq[1].A = not chCopy.inputSeq[1].A
+print("[copy test] chCopy.fitness="..chCopy.fitness)
+print("[copy test] chCopy.inputSeq[1].A="..chCopy.inputSeq[1].A)
 
 -- main loop that iterates over the chromosomes of the population and tests each o them
 while true do -------------------------------------------------------------------------------------

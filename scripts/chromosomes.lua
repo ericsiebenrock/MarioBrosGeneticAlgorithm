@@ -83,3 +83,21 @@ end
 function chromsomeLength()
   return chromosomeLength;
 end
+
+
+function chromsome.copy(chr)
+    local tableCopy = chromsome.new()
+    tableCopy.fitness = chr.fitness
+    tableCopy.hasWon = chr.hasWon
+    for j=1, inputSeqLength do
+        tableCopy.inputSeq[j].up = chr.inputSeq[j].up
+        tableCopy.inputSeq[j].down = chr.inputSeq[j].down
+        tableCopy.inputSeq[j].left = chr.inputSeq[j].left
+        tableCopy.inputSeq[j].right = chr.inputSeq[j].right
+        tableCopy.inputSeq[j].A = chr.inputSeq[j].A
+        tableCopy.inputSeq[j].B = chr.inputSeq[j].B
+        tableCopy.inputSeq[j].start = chr.inputSeq[j].start
+        tableCopy.inputSeq[j].select = chr.inputSeq[j].select
+    end
+    return tableCopy
+end
