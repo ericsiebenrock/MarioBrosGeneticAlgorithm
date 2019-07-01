@@ -84,12 +84,16 @@ function chromsomeLength()
   return chromosomeLength;
 end
 
-
-function chromsome.copy(chr)
-    local tableCopy = chromsome.new()
+--[[
+In lua tables are passed by reference.
+If an independent copy of a table is needed the copy function must be implemented manually.
+--]]
+function chromosomeCopy(chr)
+    local tableCopy = chromosome.new()
     tableCopy.fitness = chr.fitness
     tableCopy.hasWon = chr.hasWon
-    for j=1, inputSeqLength do
+    for j=1, chromosomeLength do
+        tableCopy.inputSeq[j] = generateRandomInput()
         tableCopy.inputSeq[j].up = chr.inputSeq[j].up
         tableCopy.inputSeq[j].down = chr.inputSeq[j].down
         tableCopy.inputSeq[j].left = chr.inputSeq[j].left

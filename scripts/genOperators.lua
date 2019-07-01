@@ -16,7 +16,9 @@ function geneticSelection(currPopulation, numToSelect)
     -- the population is already fitness-sorted
     for i=1,numToSelect do
         -- the mating pool is overwrited each time with the new selection
-        selectedCandidates[i]=currPopulation[i];
+        -- the 2 fittest candidates are copied by value (not by reference as happens for tables in lua)
+        selectedCandidates[i]=chromosomeCopy(currPopulation[i]);
+        print("[genOperators print] currPopulation[i].fitness: "..currPopulation[i].fitness)
     end
 end
 
@@ -35,8 +37,8 @@ function geneticCrossover()
     -- cutPoint in always between the half and before cause 500 is around the actual chromsome middle
     -- but the chromosome length was put to 1500 just to be sure
     local cutPoint = math.random(chromosomesMid-(chLength/4) , chromosomesMid);
-    local chromosome1=selectedCandidates[1];
-    local chromosome2=selectedCandidates[2];
+    local chromosome1=chromosomeCopy(selectedCandidates[1]);
+    local chromosome2=chromosomeCopy(selectedCandidates[2]);
     print("performing genetic crossover with cut point around the chromsome center ("..chromosomesMid.."): Cut point = "..cutPoint)
     print("first half from 1 to"..cutPoint.."; second half from "..(cutPoint+1).." to "..chLength.."")
     -- for ha semantica <=
@@ -51,8 +53,8 @@ function geneticCrossover()
         chromosome2.inputSeq[j]=selectedCandidates[2].inputSeq[j];
     end
 
-    geneticMutation(0.5, chromosome1, 0)
-    geneticMutation(0.5, chromosome2, 1)
+    geneticMutation(0.5, chromosome1, 0) -- chromsome1 inserted as the last chromosome of the population
+    geneticMutation(0.5, chromosome2, 1) -- chromsome2 inserted as the last-1 chromosome of the population
 end
 
 --[[

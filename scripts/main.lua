@@ -22,6 +22,7 @@ local GAME_TIMER_MAX        = 400    --Max time assigned by game
 local CONTROL_FRAME_NUMBER = 10
 local LIVES_LEFT = 0x075A            -- the number of mario's lives left
 
+local PLAYER_SCORE = 7E0715 -- to test
 local ENEMY_DRAWN = 0x000F -- enemy drawn
 local POWERUP_DRAWN = 0x0014 -- powerup drawn
 
@@ -47,13 +48,15 @@ if file_exists("winning_candidates.txt") then
 end
 
 -- table copy tests
-print("[copy test] candidates[1].fitness="..candidates[1].fitness)
-print("[copy test] candidates[1].inputSeq[1].A="..candidates[1].inputSeq[1].A)
-chCopy = chromsome.copy(chr)
-chCopy.fitness = 7
-chCopy.inputSeq[1].A = not chCopy.inputSeq[1].A
-print("[copy test] chCopy.fitness="..chCopy.fitness)
-print("[copy test] chCopy.inputSeq[1].A="..chCopy.inputSeq[1].A)
+--print("[before copy test] candidates[1].fitness="..candidates[1].fitness)
+--print("[before copy test] candidates[1].inputSeq[1].A="..tostring(candidates[1].inputSeq[1].A))
+--chCopy = chromosomeCopy(candidates[1])
+--chCopy.fitness = 7
+--chCopy.inputSeq[1].A = not chCopy.inputSeq[1].A
+--print("[copy test] chCopy.fitness="..chCopy.fitness)
+--print("[copy test] chCopy.inputSeq[1].A="..tostring(chCopy.inputSeq[1].A))
+--print("[after copy test] candidates[1].fitness="..candidates[1].fitness)
+--print("[after copy test] candidates[1].inputSeq[1].A="..tostring(candidates[1].inputSeq[1].A))
 
 -- main loop that iterates over the chromosomes of the population and tests each o them
 while true do -------------------------------------------------------------------------------------
@@ -172,7 +175,7 @@ while true do ------------------------------------------------------------------
     print("performing genetic operations..")
     table.sort(candidates,function(a,b) return a.fitness > b.fitness end);
     for k=1, POPULATION_SIZE do
-        print("candidate fitness "..k..": "..candidates[k].fitness)
+        print("candidate fitness "..k..": "..candidates[k].fitness.." A: "..tostring(candidates[k].inputSeq[1].A))
     end
     print("saving best population candidate into file..")
     saveWinInputs(candidates[1]);
@@ -180,5 +183,8 @@ while true do ------------------------------------------------------------------
     -- perform selection, crossover and mutation operations (genetic operators)
     geneticSelection(candidates, 2);
     geneticCrossover(); -- also calls mutation
+    for k=1, POPULATION_SIZE do
+        print("[after selection] candidate fitness "..k..": "..candidates[k].fitness.." A: "..tostring(candidates[k].inputSeq[1].A))
+    end
 
 end --end of the main loop: winning(s) chromosome search
