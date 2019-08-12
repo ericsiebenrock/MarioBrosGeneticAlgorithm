@@ -21,15 +21,11 @@ local MARIO_COINS = 0x075E
 local GAME_TIMER_MAX        = 400    --Max time assigned by game
 local CONTROL_FRAME_NUMBER = 10
 local LIVES_LEFT = 0x075A            -- the number of mario's lives left
+local LEVEL_RESTART = 0x0772 -- 00: restart level - 03: reset level
 
 local PLAYER_SCORE = 7E0715 -- to test
 local ENEMY_DRAWN = 0x000F -- enemy drawn
 local POWERUP_DRAWN = 0x0014 -- powerup drawn
-
--- TODO:
--- 1) FINIRE LA FUNZIONE DI SALVATAGGIO IN UN FILE DEL CANDIDATO MIGLIORE PER NON PERDERE I PROGRESSI (OK)
--- 2) TESTARE SE EFFETTIVAMENTE C'è UN MIGLIORAMENTO DOPO UN PO DI TEMPO
--- 3) INIZIARE LA FASE 2 IN CUI SI AGGIUNGE INTERAZIONE CON AMBIENTE DEL GIOCO
 
 local POPULATION_SIZE = 4
 local INPUT_SEQ_LENGTH = 1500
@@ -38,6 +34,7 @@ local inputCount=1;
 local solutionFound=-1;
 local jumpCmd=false;
 local continuousJumpFrames=0;
+local lastSavedCandidateFitness=-1;
 
 generateInitialPopulation(POPULATION_SIZE, INPUT_SEQ_LENGTH)
 local candidates = getPopulation()
@@ -67,6 +64,7 @@ while true do ------------------------------------------------------------------
     for chromIndex=1, POPULATION_SIZE do
         geneIndex=1
         memoryWrite(LIVES_LEFT,2)
+        memoryWrite(LEVEL_RESTART,00)
         --loop of chromosome's genes --------------------------------------------------------------------
         for i=1,INPUT_SEQ_LENGTH*CONTROL_FRAME_NUMBER do
 
@@ -177,13 +175,20 @@ while true do ------------------------------------------------------------------
     for k=1, POPULATION_SIZE do
         print("candidate fitness "..k..": "..candidates[k].fitness.." A: "..tostring(candidates[k].inputSeq[1].A))
     end
-    print("saving best population candidate into file..")
-    saveWinInputs(candidates[1]);
+
+    -- saving the fittest candidate of the population only if it is better then the saved one
+    if lastSavedCandidateFitness < candidates[1].fitness then
+        print("saving best population candidate into file..")
+        saveWinInputs(candidates[1]);
+        lastSavedCandidateFitness = candidates[1].fitness;
+    end
 
     -- perform selection, crossover and mutation operations (genetic operators)
     geneticSelection(candidates, 2);
     geneticCrossover(); -- also calls mutation
     for k=1, POPULATION_SIZE do
+        -- note: the intial fitness of the new chromosomes will be the same as the
+        -- first two because they are a mutated copy of the first two but then it will be updated
         print("[after selection] candidate fitness "..k..": "..candidates[k].fitness.." A: "..tostring(candidates[k].inputSeq[1].A))
     end
 
