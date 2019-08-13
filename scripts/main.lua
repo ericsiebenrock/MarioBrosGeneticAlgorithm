@@ -22,6 +22,9 @@ local GAME_TIMER_MAX        = 400    --Max time assigned by game
 local CONTROL_FRAME_NUMBER = 10
 local LIVES_LEFT = 0x075A            -- the number of mario's lives left
 local LEVEL_RESTART = 0x0772 -- 00: restart level - 03: reset level
+--local LEVEL_PALETTE = 0x0773 --00 - Normal 01 - Underwater 02 - Night 03 - Underground 04 - Castle
+--local LEVEL = 0x0760
+--local LEVEL_LAYOUT = 0x072C
 
 local PLAYER_SCORE = 7E0715 -- to test
 local ENEMY_DRAWN = 0x000F -- enemy drawn
@@ -35,6 +38,7 @@ local solutionFound=-1;
 local jumpCmd=false;
 local continuousJumpFrames=0;
 local lastSavedCandidateFitness=-1;
+local restartCounts=0;
 
 generateInitialPopulation(POPULATION_SIZE, INPUT_SEQ_LENGTH)
 local candidates = getPopulation()
@@ -63,17 +67,28 @@ while true do ------------------------------------------------------------------
     -- loop over all the population -----------------------------------------------------------------
     for chromIndex=1, POPULATION_SIZE do
         geneIndex=1
+
         memoryWrite(LIVES_LEFT,2)
         memoryWrite(LEVEL_RESTART,00)
+        restartCounts=restartCounts+1
+
+
         --loop of chromosome's genes --------------------------------------------------------------------
         for i=1,INPUT_SEQ_LENGTH*CONTROL_FRAME_NUMBER do
-
             -- the player current position on the x axis (space traveled by mario)
             playerXDistance = memoryRead(PLAYER_XPAGE_ADDR) * PLAYER_PAGE_WIDTH +
             memoryRead(PLAYER_XPOS_ADDR);
             gameTimeHundreds = memoryRead(GAME_TIMER_HUNDREDS) * 100
             gameTime = (gameTimeHundreds) + (memoryRead(GAME_TIMER_TENS) * 10) +
             memoryRead(GAME_TIMER_ONES);
+            levelType=memoryRead(LEVEL_PALETTE)
+
+            if restartCounts==1 then
+                if gameTime < 395 then
+                    memoryWrite(LEVEL_RESTART,00)
+                    restartCounts=0
+                end
+            end
 
             fitness = playerXDistance + gameTimeHundreds; -- at the moment the fitness depends only on the x distance covered by mario and the time left
             candidates[chromIndex].fitness = fitness
@@ -109,6 +124,9 @@ while true do ------------------------------------------------------------------
 
             writeOnDisplay(2, "Chromsome n.: "..chromIndex);
             writeOnDisplay(3, "enemy : "..enemy);
+            -- writeOnDisplay(4, "level palette: "..levelType)
+            -- writeOnDisplay(4, "player page: "..memoryRead(PLAYER_XPAGE_ADDR))
+            -- writeOnDisplay(5, "player pos: "..memoryRead(PLAYER_XPOS_ADDR))
 
             -- reading from memory mario's state (dead or alive)
             local playerState = memoryRead(PLAYER_STATE_ADDR);
