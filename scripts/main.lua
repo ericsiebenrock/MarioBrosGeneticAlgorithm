@@ -81,8 +81,10 @@ while true do ------------------------------------------------------------------
             gameTimeHundreds = memoryRead(GAME_TIMER_HUNDREDS) * 100
             gameTime = (gameTimeHundreds) + (memoryRead(GAME_TIMER_TENS) * 10) +
             memoryRead(GAME_TIMER_ONES);
-            levelType=memoryRead(LEVEL_PALETTE)
 
+            --[[ since the restart of the level has a bug (that teleports you Underground)
+            it is necessary to restart the level again to return to the normal level
+            --]]
             if restartCounts==1 then
                 if gameTime < 395 then
                     memoryWrite(LEVEL_RESTART,00)
