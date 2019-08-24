@@ -38,7 +38,7 @@ local solutionFound=-1;
 local jumpCmd=false;
 local continuousJumpFrames=0;
 local lastSavedCandidateFitness=-1;
-local restartCounts=0;
+--local restartCounts=0;
 
 generateInitialPopulation(POPULATION_SIZE, INPUT_SEQ_LENGTH)
 local candidates = getPopulation()
@@ -69,8 +69,8 @@ while true do ------------------------------------------------------------------
         geneIndex=1
 
         memoryWrite(LIVES_LEFT,2)
-        memoryWrite(LEVEL_RESTART,00)
-        restartCounts=restartCounts+1
+        --memoryWrite(LEVEL_RESTART,00)
+        --restartCounts=restartCounts+1
 
 
         --loop of chromosome's genes --------------------------------------------------------------------
@@ -85,12 +85,12 @@ while true do ------------------------------------------------------------------
             --[[ since the restart of the level has a bug (that teleports you Underground)
             it is necessary to restart the level again to return to the normal level
             --]]
-            if restartCounts==1 then
-                if gameTime < 395 then
-                    memoryWrite(LEVEL_RESTART,00)
-                    restartCounts=0
-                end
-            end
+            -- if restartCounts==1 then
+            --     if gameTime < 395 then
+            --         memoryWrite(LEVEL_RESTART,00)
+            --         restartCounts=0
+            --     end
+            -- end
 
             fitness = playerXDistance + gameTimeHundreds; -- at the moment the fitness depends only on the x distance covered by mario and the time left
             candidates[chromIndex].fitness = fitness
@@ -177,7 +177,7 @@ while true do ------------------------------------------------------------------
             --]]
             emu.frameadvance()
         end -- end of the loop over the single chromosome
-        if solutionFound >= 0 then
+        if solutionFound > 0 then
             break;
         end
         --print("Chromosome "..chromIndex.." finished, next chromsome")
