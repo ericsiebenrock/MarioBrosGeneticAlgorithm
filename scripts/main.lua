@@ -177,7 +177,7 @@ while true do ------------------------------------------------------------------
             --]]
             emu.frameadvance()
         end -- end of the loop over the single chromosome
-        if solutionFound >= 0 then
+        if solutionFound > 0 then
             break;
         end
         --print("Chromosome "..chromIndex.." finished, next chromsome")

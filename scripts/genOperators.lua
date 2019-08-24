@@ -53,6 +53,8 @@ function geneticCrossover()
         chromosome2.inputSeq[j]=selectedCandidates[2].inputSeq[j];
     end
 
+    chromosome1.fitness=0
+    chromosome2.fitness=0
     geneticMutation(0.5, chromosome1, 0) -- chromsome1 inserted as the last chromosome of the population
     geneticMutation(0.5, chromosome2, 1) -- chromsome2 inserted as the last-1 chromosome of the population
 end
