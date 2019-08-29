@@ -34,10 +34,11 @@ local POPULATION_SIZE = 4
 local INPUT_SEQ_LENGTH = 1500
 local geneIndex=1;
 local inputCount=1;
-local solutionFound=-1;
+local solutionFound=0;
 local jumpCmd=false;
 local continuousJumpFrames=0;
 local lastSavedCandidateFitness=-1;
+local newGameStarted=false;
 --local restartCounts=0;
 
 generateInitialPopulation(POPULATION_SIZE, INPUT_SEQ_LENGTH)
@@ -60,7 +61,7 @@ end
 --print("[after copy test] candidates[1].inputSeq[1].A="..tostring(candidates[1].inputSeq[1].A))
 
 -- main loop that iterates over the chromosomes of the population and tests each o them
-while true do -------------------------------------------------------------------------------------
+while solutionFound==0 do -------------------------------------------------------------------------------------
     -- ci saranno altri due loop interni: uno che cicla sulla popolazione (su tutti i cromosomi)
     -- e l'altro cicla sul cromosoma (su tutti gli input del cromosoma)
 
@@ -135,15 +136,21 @@ while true do ------------------------------------------------------------------
             local fallingState = memoryRead(PLAYER_VIEWPORT_ADDR);
             if p_state == PLAYER_DYING_STATE or fallingState >= PLAYER_DOWN_HOLE or gameTime==0 then
                 -- MARIO DIED or there is no time left
-                print("Mario has died! (final fitness: "..fitness..")");
+                print("Mario has died! (final fitness: "..fitness..", final time:"..gameTime..")");
                 candidates[chromIndex].fitness=fitness
-                while gameTime <= GAME_TIMER_MAX-5 do
-                    gameTime = (memoryRead(GAME_TIMER_HUNDREDS) * 100)+(memoryRead(GAME_TIMER_TENS) * 10)+memoryRead(GAME_TIMER_ONES);
+                local restartGameTime=0;
+                while (restartGameTime <= GAME_TIMER_MAX-5 or newGameStarted==false) do
+                    restartGameTime = (memoryRead(GAME_TIMER_HUNDREDS) * 100)+(memoryRead(GAME_TIMER_TENS) * 10)+memoryRead(GAME_TIMER_ONES);
+                    if restartGameTime > gameTime then
+                        newGameStarted=true;
+                    end
                     -- wait until the next game starts
                     emu.frameadvance()
                 end
                 print("Next chromosome starts")
-                --starts the next chromosome
+                newGameStarted=false
+
+                --starts the next chromosome by exiting the genes'loop
                 break;
             end
 
@@ -177,16 +184,16 @@ while true do ------------------------------------------------------------------
             --]]
             emu.frameadvance()
         end -- end of the loop over the single chromosome
-        if solutionFound > 0 then
-            break;
-        end
+        -- if solutionFound > 0 then
+        --     break;
+        -- end
         --print("Chromosome "..chromIndex.." finished, next chromsome")
     end -- end of the loop over the population
     print("popoulation finished")
 
-    if solutionFound > 0 then
-        break;
-    end
+    -- if solutionFound > 0 then
+    --     break;
+    -- end
     --fine dei due loop interni
 
     --chromosomes sorting in dec orderd from the fittest to the less fit (fitnessSort defined in utils.lua)
