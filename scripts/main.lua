@@ -7,8 +7,6 @@ local PLAYER_PAGE_WIDTH     = 256    -- Width of pages
 local PLAYER_XPOS_ADDR      = 0x86   --Player's position on the x-axis
 local PLAYER_STATE_ADDR     = 0x000E --Player's state (dead/dying)
 local PLAYER_VIEWPORT_ADDR  = 0x00B5 --Player's viewport status (falling)
-local PLAYER_YPOS_ADDR      = 0x00CE --Player's y position address
-local PLAYER_VPORT_HEIGHT   = 256    --raw height of viewport pages
 local PLAYER_DOWN_HOLE      = 3      --VIEWPORT+ypos val for falling into hole
 local PLAYER_DYING_STATE    = 0x0B   --State value for dying player
 --local PLAYER_DEAD_STATE     = 0x06   --(CURRENTLY UNUSED!) State value for dead player
@@ -17,16 +15,11 @@ local PLAYER_FLAGPOLE       = 0x03   --Player is sliding down flagpole.
 local GAME_TIMER_ONES       = 0x07fA --Game Timer first digit
 local GAME_TIMER_TENS       = 0x07f9 --Game Timer second digit
 local GAME_TIMER_HUNDREDS   = 0x07f8 --Game Time third digit
-local MARIO_COINS = 0x075E
 local GAME_TIMER_MAX        = 400    --Max time assigned by game
 local CONTROL_FRAME_NUMBER = 10
 local LIVES_LEFT = 0x075A            -- the number of mario's lives left
-local LEVEL_RESTART = 0x0772 -- 00: restart level - 03: reset level
---local LEVEL_PALETTE = 0x0773 --00 - Normal 01 - Underwater 02 - Night 03 - Underground 04 - Castle
---local LEVEL = 0x0760
---local LEVEL_LAYOUT = 0x072C
 
-local PLAYER_SCORE = 7E0715 -- to test
+
 local ENEMY_DRAWN = 0x000F -- enemy drawn
 local POWERUP_DRAWN = 0x0014 -- powerup drawn
 
@@ -39,7 +32,6 @@ local jumpCmd=false;
 local continuousJumpFrames=0;
 local lastSavedCandidateFitness=-1;
 local newGameStarted=false;
---local restartCounts=0;
 
 generateInitialPopulation(POPULATION_SIZE, INPUT_SEQ_LENGTH)
 local candidates = getPopulation()
@@ -49,21 +41,8 @@ if file_exists("winning_candidates.txt") then
     candidates[1].inputSeq = readWinInputs()
 end
 
--- table copy tests
---print("[before copy test] candidates[1].fitness="..candidates[1].fitness)
---print("[before copy test] candidates[1].inputSeq[1].A="..tostring(candidates[1].inputSeq[1].A))
---chCopy = chromosomeCopy(candidates[1])
---chCopy.fitness = 7
---chCopy.inputSeq[1].A = not chCopy.inputSeq[1].A
---print("[copy test] chCopy.fitness="..chCopy.fitness)
---print("[copy test] chCopy.inputSeq[1].A="..tostring(chCopy.inputSeq[1].A))
---print("[after copy test] candidates[1].fitness="..candidates[1].fitness)
---print("[after copy test] candidates[1].inputSeq[1].A="..tostring(candidates[1].inputSeq[1].A))
-
 -- main loop that iterates over the chromosomes of the population and tests each o them
 while solutionFound==0 do -------------------------------------------------------------------------------------
-    -- ci saranno altri due loop interni: uno che cicla sulla popolazione (su tutti i cromosomi)
-    -- e l'altro cicla sul cromosoma (su tutti gli input del cromosoma)
 
     -- loop over all the population -----------------------------------------------------------------
     for chromIndex=1, POPULATION_SIZE do
@@ -82,16 +61,6 @@ while solutionFound==0 do ------------------------------------------------------
             gameTimeHundreds = memoryRead(GAME_TIMER_HUNDREDS) * 100
             gameTime = (gameTimeHundreds) + (memoryRead(GAME_TIMER_TENS) * 10) +
             memoryRead(GAME_TIMER_ONES);
-
-            --[[ since the restart of the level has a bug (that teleports you Underground)
-            it is necessary to restart the level again to return to the normal level
-            --]]
-            -- if restartCounts==1 then
-            --     if gameTime < 395 then
-            --         memoryWrite(LEVEL_RESTART,00)
-            --         restartCounts=0
-            --     end
-            -- end
 
             fitness = playerXDistance + gameTimeHundreds; -- at the moment the fitness depends only on the x distance covered by mario and the time left
             candidates[chromIndex].fitness = fitness
@@ -127,9 +96,6 @@ while solutionFound==0 do ------------------------------------------------------
 
             writeOnDisplay(2, "Chromsome n.: "..chromIndex);
             writeOnDisplay(3, "enemy : "..enemy);
-            -- writeOnDisplay(4, "level palette: "..levelType)
-            -- writeOnDisplay(4, "player page: "..memoryRead(PLAYER_XPAGE_ADDR))
-            -- writeOnDisplay(5, "player pos: "..memoryRead(PLAYER_XPOS_ADDR))
 
             -- reading from memory mario's state (dead or alive)
             local playerState = memoryRead(PLAYER_STATE_ADDR);
@@ -175,10 +141,6 @@ while solutionFound==0 do ------------------------------------------------------
                 --print("---------------------------------------------------------------------------")
             end
 
-            --current binary input data
-            --local bid=joypad.get(1);
-            --writeOnDisplay(3,bid);
-
             --[[Advance the emulator by one frame. It's like pressing the frame advance button once.
             the frame is the basic unit of time in the NES
             --]]
@@ -191,10 +153,7 @@ while solutionFound==0 do ------------------------------------------------------
     end -- end of the loop over the population
     print("popoulation finished")
 
-    -- if solutionFound > 0 then
-    --     break;
-    -- end
-    --fine dei due loop interni
+    --end of the 2 internal loops (over the popoulation and over the single chromsome)
 
     --chromosomes sorting in dec orderd from the fittest to the less fit (fitnessSort defined in utils.lua)
     print("performing genetic operations..")
